@@ -31,9 +31,27 @@
 class profile_field_file extends profile_field_base {
     /**
      * Add fields for editing a file profile field.
+     *
+     * If the field is locked for the current user (no moodle/user:update
+     * capability), no filemanager element is added at all - instead a static
+     * read-only block with download links to the already uploaded files is
+     * placed at the SAME position (fix for issue #7: locked fields should
+     * stay visible; the filemanager element itself cannot be rendered frozen
+     * and setConstant triggers a database error on save).
      * @param MoodleQuickForm $mform instance of the moodleform class
      */
     public function edit_field_add($mform) {
+        if ($this->is_locked() && $this->userid && !has_capability('moodle/user:update', context_system::instance())) {
+            // Read-only display of the already uploaded files (if any) - in
+            // the right category, because edit_field_add() is called while
+            // the category fieldset is being built.
+            $html = ($this->data) ? $this->display_data() : '';
+            $mform->addElement('static', $this->inputname . '_lockeddisplay',
+                format_string($this->field->name),
+                ($html !== '') ? $html : get_string('nouploadedfiles', 'profilefield_file'));
+            return;
+        }
+
         $mform->addElement(
             'filemanager',
             $this->inputname,
@@ -106,28 +124,14 @@ class profile_field_file extends profile_field_base {
     }
 
     /**
-     * Remove the filemanager element if locked (the filemanager element cannot
-     * be rendered frozen), and add a static read-only block showing the
-     * already uploaded files with download links instead (issue #7: locked
-     * fields should stay visible).
+     * Nothing to do here - the locked case is handled in edit_field_add()
+     * (no filemanager element is added for locked fields, a static read-only
+     * block with download links is placed there instead). Kept as an
+     * intentional no-op override.
      * @param MoodleQuickForm $mform instance of the moodleform class
      */
     public function edit_field_set_locked($mform) {
-        if (!$mform->elementExists($this->inputname)) {
-            return;
-        }
-        if ($this->is_locked() && !has_capability('moodle/user:update', context_system::instance())) {
-            $mform->removeElement($this->inputname);
-
-            // Read-only display of the already uploaded files (if any).
-            if ($this->userid && $this->data) {
-                $html = $this->display_data();
-                if ($html !== '') {
-                    $mform->addElement('static', $this->inputname . '_lockeddisplay',
-                        format_string($this->field->name), $html);
-                }
-            }
-        }
+        // Intentionally empty: see edit_field_add().
     }
 
     /**

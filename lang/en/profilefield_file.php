@@ -33,6 +33,7 @@ $string['signup_help'] = 'File fields cannot be displayed on signup page for sec
 // Strings added in v1.1.0 (stadtschamane maintained fork). Existing string IDs are never modified.
 $string['maximumfileslabel'] = 'Maximum number of files';
 $string['maximumfileslabel_help'] = 'The maximum number of files a user can upload into this profile field.';
+$string['nouploadedfiles'] = 'Files are managed by an administrator. No files have been uploaded yet.';
 $string['privacy:metadata:profilefield_file:userid'] = 'The ID of the user whose data is stored by the File upload user profile field';
 $string['privacy:metadata:profilefield_file:fieldid'] = 'The ID of the profile field';
 $string['privacy:metadata:profilefield_file:data'] = 'Whether files have been uploaded for the File upload user profile field';
