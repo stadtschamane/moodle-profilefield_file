@@ -29,3 +29,12 @@ $string['pluginname'] = 'File upload';
 $string['signup'] = 'Display on signup page?';
 $string['signup_error'] = 'This field should be set to \'No\' for security reasons.';
 $string['signup_help'] = 'File fields cannot be displayed on signup page for security reasons. Moodle never ever allows guests/not logged in users to upload anything or use filemanager element at all.';
+
+// Strings added in v1.1.0 (stadtschamane maintained fork). Existing string IDs are never modified.
+$string['maximumfileslabel'] = 'Maximum number of files';
+$string['maximumfileslabel_help'] = 'The maximum number of files a user can upload into this profile field.';
+$string['privacy:metadata:profilefield_file:userid'] = 'The ID of the user whose data is stored by the File upload user profile field';
+$string['privacy:metadata:profilefield_file:fieldid'] = 'The ID of the profile field';
+$string['privacy:metadata:profilefield_file:data'] = 'Whether files have been uploaded for the File upload user profile field';
+$string['privacy:metadata:profilefield_file:tableexplanation'] = 'Flag record for uploaded profile files';
+$string['privacy:metadata:profilefield_file:filessubsystem'] = 'The uploaded files are stored by the core file storage system, in the profile fields file areas of the user context.';

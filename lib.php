@@ -31,9 +31,10 @@
  * @param string $filearea the name of the file area
  * @param array $args extra arguments (itemid, path)
  * @param bool $forcedownload whether or not force download
+ * @param array $options additional options, null defaults used if omitted (time, preview, offline, embed)
  * @return false|void
  */
-function profilefield_file_pluginfile($course, $cm, context $context, $filearea, $args, $forcedownload) {
+function profilefield_file_pluginfile($course, $cm, context $context, $filearea, $args, $forcedownload, array $options = []) {
     global $DB, $USER;
 
     if ($context->contextlevel != CONTEXT_USER) {
@@ -47,6 +48,11 @@ function profilefield_file_pluginfile($course, $cm, context $context, $filearea,
 
     $fieldid = substr($filearea, strlen('files_'));
     $field = $DB->get_record('user_info_field', ['id' => $fieldid]);
+
+    if (empty($field)) {
+        // Unknown or deleted field - do not serve anything.
+        return false;
+    }
 
     // If is allowed to see.
     if ($field->visible != PROFILE_VISIBLE_ALL) {
@@ -70,5 +76,5 @@ function profilefield_file_pluginfile($course, $cm, context $context, $filearea,
         return false;
     }
 
-    send_stored_file($file, 0, 0, $forcedownload);
+    send_stored_file($file, null, 0, $forcedownload, $options);
 }

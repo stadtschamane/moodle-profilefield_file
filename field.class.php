@@ -47,14 +47,12 @@ class profile_field_file extends profile_field_base {
      * Overwrite the base class to display the data for this field
      */
     public function display_data() {
-        global $CFG;
         // Default formatting.
-        $data = parent::display_data();
+        parent::display_data();
 
         $context = context_user::instance($this->userid, MUST_EXIST);
         $fs = get_file_storage();
 
-        $dir = $fs->get_area_tree($context->id, 'profilefield_file', "files_{$this->fieldid}", 0);
         $files = $fs->get_area_files(
             $context->id,
             'profilefield_file',
@@ -67,11 +65,15 @@ class profile_field_file extends profile_field_base {
         $data = [];
 
         foreach ($files as $file) {
-            $path = '/' . $context->id . '/profilefield_file/files_' . $this->fieldid . '/' .
-                    $file->get_itemid() .
-                    $file->get_filepath() .
-                    $file->get_filename();
-            $url = file_encode_url("$CFG->wwwroot/pluginfile.php", $path, true);
+            $url = moodle_url::make_pluginfile_url(
+                $context->id,
+                'profilefield_file',
+                "files_{$this->fieldid}",
+                0,
+                $file->get_filepath(),
+                $file->get_filename(),
+                true // Force download, as the file serves private data.
+            );
             $filename = $file->get_filename();
             $data[] = html_writer::link($url, $filename);
         }
@@ -104,16 +106,17 @@ class profile_field_file extends profile_field_base {
     }
 
     /**
-     * Just remove the field element if locked.
+     * Just freeze the field element if locked, so that the user can still see
+     * and download the previously uploaded files, but not change them.
      * @param MoodleQuickForm $mform instance of the moodleform class
-     * @todo improve this
      */
     public function edit_field_set_locked($mform) {
         if (!$mform->elementExists($this->inputname)) {
             return;
         }
         if ($this->is_locked() && !has_capability('moodle/user:update', context_system::instance())) {
-            $mform->removeElement($this->inputname);
+            $mform->hardFreeze($this->inputname);
+            $mform->setConstant($this->inputname, $this->data);
         }
     }
 
