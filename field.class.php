@@ -106,8 +106,10 @@ class profile_field_file extends profile_field_base {
     }
 
     /**
-     * Just freeze the field element if locked, so that the user can still see
-     * and download the previously uploaded files, but not change them.
+     * Remove the filemanager element if locked (the filemanager element cannot
+     * be rendered frozen), and add a static read-only block showing the
+     * already uploaded files with download links instead (issue #7: locked
+     * fields should stay visible).
      * @param MoodleQuickForm $mform instance of the moodleform class
      */
     public function edit_field_set_locked($mform) {
@@ -115,8 +117,16 @@ class profile_field_file extends profile_field_base {
             return;
         }
         if ($this->is_locked() && !has_capability('moodle/user:update', context_system::instance())) {
-            $mform->hardFreeze($this->inputname);
-            $mform->setConstant($this->inputname, $this->data);
+            $mform->removeElement($this->inputname);
+
+            // Read-only display of the already uploaded files (if any).
+            if ($this->userid && $this->data) {
+                $html = $this->display_data();
+                if ($html !== '') {
+                    $mform->addElement('static', $this->inputname . '_lockeddisplay',
+                        format_string($this->field->name), $html);
+                }
+            }
         }
     }
 
